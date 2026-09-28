@@ -2,7 +2,18 @@
 #include <mutex>
 #include <chrono>
 #include <thread>
-#include "gate.h"
+#include <functional>
+
+std::mutex mtx;
+
+bool entry_open = false;
+
+
+void entryGate(){
+    while(true){
+        std::unique_lock<std::mutex> lock(mtx);
+    }
+}
 
 int main(){
 
