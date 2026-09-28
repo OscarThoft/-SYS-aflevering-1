@@ -9,8 +9,7 @@ std::mutex mtx;
 std::condition_variable cv;
 
 bool entry_open = false;
-bool entry_requests = false;
-bool entry_passed = false;
+bool entry_car_pressent = false;
 
 
 void entryGate(){
@@ -18,7 +17,7 @@ void entryGate(){
         std::unique_lock<std::mutex> lock(mtx);
         //venter på bil
         cv.wait(lock, [] {
-            return entry_requests;
+            return entry_car_pressent;
         });
         std::cout << "Entry Gate: car requested gate" << std::endl;
         //åbner
@@ -28,7 +27,7 @@ void entryGate(){
         cv.notify_one();
         //venter på bil kørt igennem
         cv.wait(lock, [] {
-            return entry_passed;
+            return !entry_car_pressent;
         });
         std::cout << "Entry Gate: car passed" << std::endl;
 
@@ -36,10 +35,30 @@ void entryGate(){
         entry_open = false;
         std::cout << "Entry Gate: closing gate" << std::endl;
 
-        
-        bool entry_requests = false;
-        bool entry_passed = false;
     }
+}
+
+void car(){
+    {
+        std::lock_guard<std::mutex> lock(mtx);
+        entry_car_pressent = true;
+        std::cout << "Bil registreret" << std::endl;
+    }
+    cv.notify_all();
+
+    {
+        std::unique_lock<std::mutex> lock(mtx);
+        cv.wait(lock, [] {
+            return entry_open;
+        });
+    }
+    std::cout << "Bilen koerer igennem\n";
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    {
+        std::lock_guard<std::mutex> lock(mtx);
+        entry_car_pressent = false;
+    }
+    cv.notify_all();
 }
 
 int main(){
