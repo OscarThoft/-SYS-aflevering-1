@@ -120,4 +120,5 @@ int main(){
     entry_gate_thread.join();
     exit_gate_thread.join();
     car_thread.join();
+    return 0;
 }
