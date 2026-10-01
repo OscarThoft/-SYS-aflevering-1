@@ -66,9 +66,10 @@ void exitGate(){
 }
 
 void car(){
-    //detekter car ved gate
+    
     while(true) 
     {
+    //detekter car ved gate
     {
         std::lock_guard<std::mutex> lock(mtx);
         entry_car_present = true;
@@ -124,4 +125,5 @@ int main(){
     entry_gate_thread.join();
     exit_gate_thread.join();
     car_thread.join();
+
 }
